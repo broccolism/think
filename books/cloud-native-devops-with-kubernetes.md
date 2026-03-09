@@ -39,3 +39,9 @@ In summary, `limits` is used for three purposes: (1) CPU throttling, (2) OOM Kil
 - `kubectl get pods --watch` — you can use the watch option. This seems useful in corporate environments where using external open-source tools like kubespy is frowned upon! (I'm actually using Lens, but this looks more fun.) - 7.1.9 Watching Objects
 - Imperative commands are useful for quick tests or validating ideas, but they have the problem of lacking a reliable single source of truth. With imperative commands, there is no way to know when or who ran them, or what the results were. - 7.2.2 When Not to Use Imperative Commands
   - TIP) In production clusters, you should not use imperative `kubectl` commands like `create` or `edit`. It is recommended to manage resources with version-controlled YAML manifests and apply them with `kubectl apply` (or Helm charts).
+
+- (Obviously) containers within a pod communicate locally with each other. In other words, containers in the same pod are always located on the same physical machine.
+
+- A container image can have multiple tags, but its digest is unique. - 8.2.3 Container Digests
+
+- Running a container's program as the root user should be avoided. There are security options such as `runAsNonRoot: true`, `readOnlyRootFilesystem: true`, and `allowPrivilegeEscalation: false`. You can run a container as a specific UID user with `securityContext.runAsUser`. - 8.3.1 Running Containers as a Non-Root User
