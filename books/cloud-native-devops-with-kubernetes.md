@@ -26,6 +26,49 @@ When a node experiences resource pressure (node pressure), the kubelet decides w
 
 In summary, `limits` is used for three purposes: (1) CPU throttling, (2) OOM Kill when memory is exceeded, and (3) eviction priority through QoS class determination.
 
+#### 9.7 Istio
+
+Q. What Istio manages: it's basically responsible for internal communication, but it has multi-cluster capabilities that let you connect multiple k8s clusters into a single Istio mesh. So what exactly does "internal communication" mean here?
+
+A. It means communication between pods within a single k8s cluster. In other words, even if pods are placed on different nodes, as long as those nodes belong to a single k8s cluster, pod-to-pod communication is considered internal. Physical distance or server location doesn't matter.
+
+![image-20260316210421254](images/image-20260316210421254.png)
+
+Q. What is Istio's overall role?
+
+A. All of this is made possible by injecting an Envoy proxy sidecar into each pod.
+
+```
+Traffic Management
+
+Load balancing for requests between services
+Traffic splitting for deployment strategies like canary/blue-green
+Automatic retry and timeout handling
+Circuit breaker to prevent failure propagation
+
+Security
+
+Automatic mTLS encryption for service-to-service communication
+Automatic certificate issuance and renewal
+Access control for "which service can call which service" (Authorization Policy)
+JWT-based user authentication
+
+Observability
+
+Automatic metric collection for all requests between services (response time, error rate, traffic volume, etc.)
+Automatic distributed tracing generation (tracking which services a request passed through)
+Automatic access log collection
+Integration with monitoring tools like Prometheus, Grafana, and Jaeger
+
+Policy Management
+
+Centrally manage network policies as YAML, not code
+Apply the same policies to all services regardless of language or framework
+Change policies without redeploying services
+```
+
+![image-20260316210400833](images/image-20260316210400833.png)
+
 # Newly Learned
 
 - It is best to keep container images as small as possible. The reasons are: smaller containers build faster, take up less image storage space, pull faster, and have fewer security vulnerabilities. - 5.1.4 Keep Your Containers Small
@@ -39,9 +82,13 @@ In summary, `limits` is used for three purposes: (1) CPU throttling, (2) OOM Kil
 - `kubectl get pods --watch` — you can use the watch option. This seems useful in corporate environments where using external open-source tools like kubespy is frowned upon! (I'm actually using Lens, but this looks more fun.) - 7.1.9 Watching Objects
 - Imperative commands are useful for quick tests or validating ideas, but they have the problem of lacking a reliable single source of truth. With imperative commands, there is no way to know when or who ran them, or what the results were. - 7.2.2 When Not to Use Imperative Commands
   - TIP) In production clusters, you should not use imperative `kubectl` commands like `create` or `edit`. It is recommended to manage resources with version-controlled YAML manifests and apply them with `kubectl apply` (or Helm charts).
-
 - (Obviously) containers within a pod communicate locally with each other. In other words, containers in the same pod are always located on the same physical machine.
-
 - A container image can have multiple tags, but its digest is unique. - 8.2.3 Container Digests
-
 - Running a container's program as the root user should be avoided. There are security options such as `runAsNonRoot: true`, `readOnlyRootFilesystem: true`, and `allowPrivilegeEscalation: false`. You can run a container as a specific UID user with `securityContext.runAsUser`. - 8.3.1 Running Containers as a Non-Root User
+- You can use a DaemonSet to run exactly one container per node (not duplicated per pod). However, since you can't control the number of replicas, it's best used when a single replica per node is all you need. - 9.5.1 DaemonSets
+- Job: runs pods only the specified number of times, and considers the task complete once they've run. - 9.5.3 Jobs
+- Two elements responsible for routing:
+  - Ingress: routes external traffic to the appropriate microservice
+  - Service: routes internal traffic (e.g., communication between microservices)
+- Once access permissions are granted to a K8s user, they cannot be revoked (!) - 11.1.4 Binding Roles to Users
+  - `cluster-admin` is the K8s equivalent of Linux's `root`. Don't give this permission to service accounts for externally exposed applications!! The `edit` role is more than enough for deployment purposes.
