@@ -69,6 +69,18 @@ Change policies without redeploying services
 
 ![image-20260316210400833](images/image-20260316210400833.png)
 
+#### 12.1.4 Handling Quotes in Templates
+
+Q. What is the `quote` function and why is it needed?
+
+A. `quote` is a Helm template function that wraps a value in double quotes (`"`). Since YAML parsing can break when string values contain special characters, using `{{ .Values.MyName | quote }}` produces `"John Doe"` which is safely treated as a string. However, using `quote` on numeric values like port numbers turns `8080` into `"8080"` (a string), which causes Kubernetes errors. So it should only be used on string values.
+
+#### 12.4 Advanced Manifest Management Tools
+
+Q. Is Ansible at the same level as Helm?
+
+A. No. They manage different scopes. **Helm** is a tool for packaging and deploying applications within Kubernetes. **Ansible** is a tool for managing entire infrastructure — server setup, software installation, infrastructure provisioning, etc. It is common to use Ansible to set up a Kubernetes cluster, then use Helm to deploy applications on top of it. In other words, Ansible operates at the infrastructure level, while Helm operates at the Kubernetes level.
+
 # Newly Learned
 
 - It is best to keep container images as small as possible. The reasons are: smaller containers build faster, take up less image storage space, pull faster, and have fewer security vulnerabilities. - 5.1.4 Keep Your Containers Small
@@ -92,3 +104,18 @@ Change policies without redeploying services
   - Service: routes internal traffic (e.g., communication between microservices)
 - Once access permissions are granted to a K8s user, they cannot be revoked (!) - 11.1.4 Binding Roles to Users
   - `cluster-admin` is the K8s equivalent of Linux's `root`. Don't give this permission to service accounts for externally exposed applications!! The `edit` role is more than enough for deployment purposes.
+- Node pod placement settings
+  - Node affinity: specifies which nodes a pod should be scheduled on
+  - Pod affinity/pod anti-affinity: determines how new pods are scheduled based on existing pods on nodes
+  - Taints/tolerations: specifies what kinds of pods a node will accept
+- **Jsonnet**: A data templating language that extends JSON. It adds programming features like variables, loops, conditionals, and functions to JSON. It ultimately outputs JSON but allows managing repetitive Kubernetes YAML much more concisely. Tools like ksonnet and kapitan are based on Jsonnet. - 12.4 Advanced Manifest Management Tools
+  ```jsonnet
+  local makeDeployment(name, image, replicas=1) = {
+    apiVersion: "apps/v1",
+    kind: "Deployment",
+    metadata: { name: name },
+    spec: { replicas: replicas },
+  };
+  // Create deployments with a simple function call
+  { web: makeDeployment("web", "nginx", 3) }
+  ```
