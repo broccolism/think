@@ -119,3 +119,7 @@ A. No. They manage different scopes. **Helm** is a tool for packaging and deploy
   // Create deployments with a simple function call
   { web: makeDeployment("web", "nginx", 3) }
   ```
+- Useful monitoring patterns - 16.2 Choosing Good Metrics
+  - Key metrics for services = RED pattern: measure Request rate, Error rate, and Duration. For Request and Error, it's better to measure rates rather than raw totals (e.g., requests per second). This allows top-down observation of service performance and user experience.
+  - Key metrics for resources = USE pattern: measure Utilization, Saturation, and Errors. This helps analyze performance issues and identify bottlenecks in a bottom-up manner.
+  - Don't forget to log business-critical data directly!
