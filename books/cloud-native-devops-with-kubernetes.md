@@ -119,6 +119,11 @@ A. No. They manage different scopes. **Helm** is a tool for packaging and deploy
   // Create deployments with a simple function call
   { web: makeDeployment("web", "nginx", 3) }
   ```
+- Development workflow tools for bridging local development and Kubernetes clusters - 13. Development Workflows
+  - **Skaffold** (Google): Automates the build → push → deploy loop; saves code locally and it's automatically deployed to k8s.
+  - **Draft** (Microsoft): Analyzes source code to auto-generate Dockerfiles and Helm charts, bootstrapping initial k8s setup.
+  - **Telepresence** (Ambassador Labs): Connects a local process to a remote k8s cluster network, so local code can communicate with cluster services as if running inside the cluster.
+  - **Knative** (Google): A serverless abstraction layer on top of k8s — scale-to-zero when idle, auto-scale-up on incoming requests.
 - Useful monitoring patterns - 16.2 Choosing Good Metrics
   - Key metrics for services = RED pattern: measure Request rate, Error rate, and Duration. For Request and Error, it's better to measure rates rather than raw totals (e.g., requests per second). This allows top-down observation of service performance and user experience.
   - Key metrics for resources = USE pattern: measure Utilization, Saturation, and Errors. This helps analyze performance issues and identify bottlenecks in a bottom-up manner.
